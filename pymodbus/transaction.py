@@ -26,6 +26,18 @@ except NameError:
     TimeoutError = socket.timeout
 
 
+def multiplecall(func):
+    def inner(*args, **kwargs):
+        print("inner call of decorator")
+        for v in range(5):
+            print("internal call from decorator: ", func.__name__)
+            ret = func(*args, **kwargs)
+
+        return ret
+    return inner
+
+
+
 # --------------------------------------------------------------------------- #
 # Logging
 # --------------------------------------------------------------------------- #
@@ -220,9 +232,11 @@ class ModbusTransactionManager(object):
             result = b''
         return result, last_exception
 
+    @multiplecall
     def _send(self, packet):
         return self.client.framer.sendPacket(packet)
 
+    @multiplecall
     def _recv(self, expected_response_length, full):
         total = None
         if not full:
